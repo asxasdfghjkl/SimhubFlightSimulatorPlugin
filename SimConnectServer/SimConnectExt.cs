@@ -17,8 +17,19 @@ namespace SimConnectServer {
 			return info.IsValueType && !info.IsPrimitive && !info.IsInterface;
 		}
 
+		public static void RequestAllTelemety(this SimConnect sim) {
+			var structs = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsDefined(typeof(TelemetryStructAttribute)));
+			foreach(var type in structs) {
+				sim.RequestTelemetry(type);
+			}
+		}
+
 		public static void RequestTelemetry<T>(this SimConnect sim) {
-			var typeInfo = typeof(T).GetTypeInfo();
+			RequestTelemetry(sim, typeof(T));
+		}
+
+		public static void RequestTelemetry(this SimConnect sim, Type structType) {
+			var typeInfo = structType.GetTypeInfo();
 			var attr = typeInfo.GetCustomAttribute<TelemetryStructAttribute>();
 			if(!IsStructType(typeInfo) || attr == null) {
 				throw new ArgumentException("[type] needs to be a struct with TelemetryStruct attribute");
@@ -42,10 +53,12 @@ namespace SimConnectServer {
 					throw new ArgumentException($"All the fields in [${typeInfo.Name}] should have VariableInfo attribute");
 				}
 			}
-			sim.RegisterDataDefineStruct<T>(structIndex);
+			sim.GetType()
+				.GetMethod(nameof(sim.RegisterDataDefineStruct))
+				.MakeGenericMethod(structType)
+				.Invoke(sim, new object[] { structIndex });
 			sim.RequestDataOnSimObject(structIndex, structIndex, SimConnect.SIMCONNECT_OBJECT_ID_USER, attr.UpdatePeriod, attr.RequestFlag, 0, 0, 0);
 		}
-
 
 	}
 }

@@ -30,7 +30,10 @@ namespace SimConnectServer {
 		protected override void WndProc(ref Message m) {
 			switch(m.Msg) {
 				case WM_USER_SIMCONNECT:
-					Sim?.ReceiveMessage();
+					try {
+						Sim?.ReceiveMessage();
+					} catch {
+					}
 					break;
 				default:
 					base.WndProc(ref m);
@@ -57,8 +60,7 @@ namespace SimConnectServer {
 		}
 
 		private void RegisterDataRequest() {
-			Sim.RequestTelemetry<AirCraftInfo>();
-			Sim.RequestTelemetry<RudderInfo>();
+			Sim.RequestAllTelemety();
 		}
 
 		private void Sim_OnRecvSimobjectData(SimConnect sender, SIMCONNECT_RECV_SIMOBJECT_DATA data) {

@@ -1,11 +1,17 @@
 ﻿using MahApps.Metro.Controls;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SimHub.Plugins;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using WoteverCommon;
+using WoteverCommon.Extensions;
 
 namespace JZCoding.Simhub.GearPlugin {
 	[PluginDescription("Flight Simulator Plugin")]
@@ -22,7 +28,7 @@ namespace JZCoding.Simhub.GearPlugin {
 		/// <summary>
 		/// Gets the left menu icon. Icon must be 24x24 and compatible with black and white display.
 		/// </summary>
-		public ImageSource PictureIcon => this.ToIcon(Properties.Resources.MenuIcon);
+		public ImageSource PictureIcon => this.ToIcon(Properties.Resources.menuIcon);
 
 		/// <summary>
 		/// Gets a short plugin title to show in left menu. Return null if you want to use the title as defined in PluginName attribute.
@@ -33,6 +39,8 @@ namespace JZCoding.Simhub.GearPlugin {
 		public FlightPlugin() {
 			UI = new UI(this);
 		}
+
+		internal TelemetryStates Telemetry { set; get; }
 
 		/// <summary>
 		/// Called at plugin manager stop, close/dispose anything needed here !
@@ -62,12 +70,16 @@ namespace JZCoding.Simhub.GearPlugin {
 			SimHub.Logging.Current.Debug("Starting plugin");
 			Settings = this.ReadCommonSettings(nameof(FlightPlugin), () => new PluginSettings());
 
+			this.Telemetry = new TelemetryStates();
+			var props = typeof(TelemetryStates).GetProperties();
+			foreach(var prop in props) {
+				this.AttachDelegate("FlightData." + prop.Name, () => prop.GetValue(this.Telemetry));
+			}
+
 			if(UdpTask == null) {
 				StartUdpServer();
 			}
-
 		}
-
 
 
 		private void StartUdpServer() {
@@ -76,15 +88,30 @@ namespace JZCoding.Simhub.GearPlugin {
 				var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 				socket.Bind(new IPEndPoint(IPAddress.Any, Settings.UdpPort));
 
+				var stateProps = typeof(TelemetryStates).GetProperties();
+
 				UdpTask = Task.Run(() => {
 					while(true) {
 						var buffer = new byte[1024 * 1024];
 						socket.Receive(buffer, SocketFlags.None);
-						AddLog(Encoding.UTF8.GetString(buffer));
+						var content = Encoding.UTF8.GetString(buffer);
+
+						AddLog(content);
+						if(!content.StartsWith("{")) {
+							continue;
+						}
+
+						var obj = JObject.Parse(content);
+						foreach(var jToken in obj.Children()) {
+							if(jToken is JProperty jProp) {
+								var prop = stateProps.FirstOrDefault(p => p.Name == jProp.Name);
+								prop?.SetValue(this.Telemetry, Convert.ChangeType(jProp.Value, prop.PropertyType));
+							}
+						}
 					}
 				});
 			} catch(Exception ex) {
-				AddLog($"Can't Listen to UDP Port:{Settings.UdpPort}");
+				AddLog($"Can't Listen to UDP Port:{Settings.UdpPort}. {ex.Message}");
 			}
 		}
 

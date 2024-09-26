@@ -63,7 +63,7 @@ namespace JZCoding.Simhub.GearPlugin.Properties {
         /// <summary>
         ///   查詢類型 System.Drawing.Bitmap 的當地語系化資源。
         /// </summary>
-        internal static System.Drawing.Bitmap MenuIcon {
+        internal static System.Drawing.Bitmap menuIcon {
             get {
                 object obj = ResourceManager.GetObject("menuIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
