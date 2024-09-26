@@ -158,8 +158,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\aeroplane_89198.png" />
-    <Content Include="sdkmenuicon.png" />
+    <None Include="Resources\logo.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

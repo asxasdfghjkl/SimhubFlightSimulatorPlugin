@@ -1,5 +1,6 @@
 ﻿using Microsoft.FlightSimulator.SimConnect;
 using Newtonsoft.Json;
+using SimConnectServer.Attributes;
 using SimConnectServer.TelemetryData;
 using System;
 using System.Linq;
@@ -56,32 +57,16 @@ namespace SimConnectServer {
 		}
 
 		private void RegisterDataRequest() {
-			//msfs.AddToDataDefinition(SimConnectStructs.AirCraftInfo, "Title", null, SIMCONNECT_DATATYPE.STRING256, 0, SimConnect.SIMCONNECT_UNUSED);
-			//msfs.AddToDataDefinition(SimConnectStructs.AirCraftInfo, "Airspeed True", "knots", SIMCONNECT_DATATYPE.FLOAT64, 0, SimConnect.SIMCONNECT_UNUSED);
-			//msfs.AddToDataDefinition(SimConnectStructs.AirCraftInfo, "Trailing Edge Flaps Left Percent", "percent", SIMCONNECT_DATATYPE.FLOAT64, 0, SimConnect.SIMCONNECT_UNUSED);
-			//msfs.AddToDataDefinition(SimConnectStructs.AirCraftInfo, "Spoilers Handle Position", "percent", SIMCONNECT_DATATYPE.FLOAT64, 0, SimConnect.SIMCONNECT_UNUSED);
-			//msfs.RegisterDataDefineStruct<AirCraftInfo>(SimConnectStructs.AirCraftInfo);
-			//msfs.RequestDataOnSimObject(SimConnectStructs.AirCraftInfo, SimConnectStructs.AirCraftInfo, SimConnect.SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD.SECOND, SIMCONNECT_DATA_REQUEST_FLAG.CHANGED, 0, 0, 0);
-
-			Sim.AddToDataDefinition(SimConnectStructs.RudderInfo, "RUDDER DEFLECTION", "degree", SIMCONNECT_DATATYPE.INT32, 0, SimConnect.SIMCONNECT_UNUSED);
-			Sim.AddToDataDefinition(SimConnectStructs.RudderInfo, "RUDDER PEDAL INDICATOR", "position", SIMCONNECT_DATATYPE.INT32, 0, SimConnect.SIMCONNECT_UNUSED);
-			Sim.AddToDataDefinition(SimConnectStructs.RudderInfo, "RUDDER PEDAL POSITION", "position", SIMCONNECT_DATATYPE.INT32, 0, SimConnect.SIMCONNECT_UNUSED);
-			Sim.AddToDataDefinition(SimConnectStructs.RudderInfo, "RUDDER POSITION", "position", SIMCONNECT_DATATYPE.INT32, 0, SimConnect.SIMCONNECT_UNUSED);
-			Sim.AddToDataDefinition(SimConnectStructs.RudderInfo, "RUDDER TRIM", "degree", SIMCONNECT_DATATYPE.INT32, 0, SimConnect.SIMCONNECT_UNUSED);
-			Sim.AddToDataDefinition(SimConnectStructs.RudderInfo, "RUDDER TRIM DISABLED", "bool", SIMCONNECT_DATATYPE.INT32, 0, SimConnect.SIMCONNECT_UNUSED);
-			Sim.RegisterDataDefineStruct<RudderInfo>(SimConnectStructs.RudderInfo);
-			Sim.RequestDataOnSimObject(SimConnectStructs.RudderInfo, SimConnectStructs.RudderInfo, SimConnect.SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD.SECOND, SIMCONNECT_DATA_REQUEST_FLAG.CHANGED, 0, 0, 0);
+			Sim.RequestTelemetry<AirCraftInfo>();
+			Sim.RequestTelemetry<RudderInfo>();
 		}
 
 		private void Sim_OnRecvSimobjectData(SimConnect sender, SIMCONNECT_RECV_SIMOBJECT_DATA data) {
-			if(data.dwRequestID == (int)SimConnectStructs.AirCraftInfo) {
-				var payload = (AirCraftInfo)data.dwData[0];
-				var json = JsonConvert.SerializeObject(payload);
-				_ = SendUdp(json);
-			} else if(data.dwRequestID == (int)SimConnectStructs.RudderInfo) {
-				var payload = (RudderInfo)data.dwData[0];
-				var json = JsonConvert.SerializeObject(payload);
-				_ = SendUdp(json);
+			for(var i = 0; i < TelemetryStructAttribute.AllStructs.Count; ++i) {
+				if(data.dwRequestID == i) {
+					var json = JsonConvert.SerializeObject(Convert.ChangeType(data.dwData[0], TelemetryStructAttribute.AllStructs[i]));
+					_ = SendUdp(json);
+				}
 			}
 		}
 
@@ -98,16 +83,23 @@ namespace SimConnectServer {
 
 
 		private Task SendUdp(string message) {
+			this.Log.Text += message + Environment.NewLine;
+			this.Log.SelectionStart = this.Log.Text.Length;
+			this.Log.ScrollToCaret();
 			var bytes = Encoding.UTF8.GetBytes(message);
 			var tasks = TextPort.Text.Split(',')
-				.Select(port => UInt16.TryParse(port, out var value) ? value : 0)
+				.Select(port => int.TryParse(port, out var value) ? value : 0)
 				.Where(port => port > 0)
 				.Select(port => Udp.SendAsync(bytes, bytes.Length, new IPEndPoint(IPAddress.Parse("127.0.0.1"), port)));
 			return Task.WhenAll(tasks);
 		}
 
-		private void button1_Click(object sender, EventArgs e) {
+		private void BtnSignalTest_Click(object sender, EventArgs e) {
 			_ = SendUdp("Signal Test");
+		}
+
+		private void BtnClearLog_Click(object sender, EventArgs e) {
+			this.Log.Text = "";
 		}
 	}
 }

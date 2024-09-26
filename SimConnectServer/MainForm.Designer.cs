@@ -25,9 +25,11 @@
 		private void InitializeComponent() {
 			this.components = new System.ComponentModel.Container();
 			this.TimerConnection = new System.Windows.Forms.Timer(this.components);
-			this.button1 = new System.Windows.Forms.Button();
+			this.BtnSignalTest = new System.Windows.Forms.Button();
 			this.TextPort = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
+			this.Log = new System.Windows.Forms.TextBox();
+			this.BtnClearLog = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// TimerConnection
@@ -36,15 +38,15 @@
 			this.TimerConnection.Interval = 1000;
 			this.TimerConnection.Tick += new System.EventHandler(this.TimerConnection_Tick);
 			// 
-			// button1
+			// BtnSignalTest
 			// 
-			this.button1.Location = new System.Drawing.Point(12, 394);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(96, 42);
-			this.button1.TabIndex = 0;
-			this.button1.Text = "Signal Test";
-			this.button1.UseVisualStyleBackColor = true;
-			this.button1.Click += new System.EventHandler(this.button1_Click);
+			this.BtnSignalTest.Location = new System.Drawing.Point(12, 394);
+			this.BtnSignalTest.Name = "BtnSignalTest";
+			this.BtnSignalTest.Size = new System.Drawing.Size(96, 42);
+			this.BtnSignalTest.TabIndex = 0;
+			this.BtnSignalTest.Text = "Signal Test";
+			this.BtnSignalTest.UseVisualStyleBackColor = true;
+			this.BtnSignalTest.Click += new System.EventHandler(this.BtnSignalTest_Click);
 			// 
 			// TextPort
 			// 
@@ -63,14 +65,35 @@
 			this.label1.TabIndex = 2;
 			this.label1.Text = "Port:";
 			// 
+			// Log
+			// 
+			this.Log.Location = new System.Drawing.Point(12, 40);
+			this.Log.Multiline = true;
+			this.Log.Name = "Log";
+			this.Log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.Log.Size = new System.Drawing.Size(485, 348);
+			this.Log.TabIndex = 3;
+			// 
+			// BtnClearLog
+			// 
+			this.BtnClearLog.Location = new System.Drawing.Point(422, 15);
+			this.BtnClearLog.Name = "BtnClearLog";
+			this.BtnClearLog.Size = new System.Drawing.Size(75, 23);
+			this.BtnClearLog.TabIndex = 4;
+			this.BtnClearLog.Text = "Clear Log";
+			this.BtnClearLog.UseVisualStyleBackColor = true;
+			this.BtnClearLog.Click += new System.EventHandler(this.BtnClearLog_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(509, 448);
+			this.Controls.Add(this.BtnClearLog);
+			this.Controls.Add(this.Log);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.TextPort);
-			this.Controls.Add(this.button1);
+			this.Controls.Add(this.BtnSignalTest);
 			this.Name = "MainForm";
 			this.Text = "Form1";
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
@@ -83,9 +106,11 @@
 		#endregion
 
 		private System.Windows.Forms.Timer TimerConnection;
-		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.Button BtnSignalTest;
 		private System.Windows.Forms.TextBox TextPort;
 		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.TextBox Log;
+		private System.Windows.Forms.Button BtnClearLog;
 	}
 }
 
