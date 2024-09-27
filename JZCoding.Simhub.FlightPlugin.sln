@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JZCoding.Simhub.FlightPlugin", "JZCoding.Simhub.FlightPlugin.csproj", "{833040C9-FE5E-4CCF-B21D-71979E049B6B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JZCoding.Simhub.FlightPlugin", "Plugin\JZCoding.Simhub.FlightPlugin.csproj", "{833040C9-FE5E-4CCF-B21D-71979E049B6B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimConnectServer", "SimConnectServer\SimConnectServer.csproj", "{A4D23C6E-A7CF-4810-B165-5402D9090C8B}"
 EndProject

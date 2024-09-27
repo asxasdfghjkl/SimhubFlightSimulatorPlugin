@@ -32,7 +32,8 @@ namespace SimConnectServer {
 				case WM_USER_SIMCONNECT:
 					try {
 						Sim?.ReceiveMessage();
-					} catch {
+					} catch(Exception ex) {
+						this.Log.Text += ex.Message + Environment.NewLine;
 					}
 					break;
 				default:
@@ -55,7 +56,7 @@ namespace SimConnectServer {
 				Sim.OnRecvSimobjectData += this.Sim_OnRecvSimobjectData;
 				RegisterDataRequest();
 			} catch(COMException) {
-				_ = SendUdp("MSFS Disconnected");
+				_ = SendUdp("{\"IS_MSFS_RUNNING\": 0}");
 			}
 		}
 
@@ -75,19 +76,21 @@ namespace SimConnectServer {
 		private void Sim_OnRecvQuit(SimConnect sender, SIMCONNECT_RECV data) {
 			this.Text = "Disconnected";
 			this.Sim = null;
-			_ = SendUdp("MSFS Disconnected");
+			_ = _ = SendUdp("{\"IS_MSFS_RUNNING\": 0}");
 		}
 
 		private void Sim_OnRecvOpen(SimConnect sender, SIMCONNECT_RECV_OPEN data) {
 			this.Text = "Connected";
-			_ = SendUdp("MSFS Conntected");
+			_ = SendUdp("{\"IS_MSFS_RUNNING\": 1}");
 		}
 
 
 		private Task SendUdp(string message) {
-			this.Log.Text += message + Environment.NewLine;
-			this.Log.SelectionStart = this.Log.Text.Length;
-			this.Log.ScrollToCaret();
+			if(ChkShowLog.Checked) {
+				this.Log.Text += message + Environment.NewLine;
+				this.Log.SelectionStart = this.Log.Text.Length;
+				this.Log.ScrollToCaret();
+			}
 			var bytes = Encoding.UTF8.GetBytes(message);
 			var tasks = TextPort.Text.Split(',')
 				.Select(port => int.TryParse(port, out var value) ? value : 0)

@@ -1,0 +1,17 @@
+using Microsoft.FlightSimulator.SimConnect;
+using SimConnectServer.Attributes;
+using System.Runtime.InteropServices;
+
+namespace SimConnectServer.TelemetryData {
+
+	[TelemetryStruct(typeof({{group}}))]
+	internal struct {{group}} {
+        {{#each rows}}
+        {{#if marshalAttr}}
+        {{marshalAttr}}
+        {{/if}}
+		[VariableInfo("{{simName}}", {{#if unit}}"{{unit}}"{{else}}null{{/if}}, SIMCONNECT_DATATYPE.{{upper type}})]
+		public {{typeCs}} {{simhubName}};
+        {{/each}}
+	}
+}

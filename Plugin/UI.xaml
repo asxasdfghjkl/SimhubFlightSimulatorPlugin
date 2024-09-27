@@ -13,7 +13,12 @@
 			 >
 	<Grid>
 		<StackPanel>
-			<styles:SHButtonPrimary Name="ClearLog" Click="ClearLog_Click">Clear Log</styles:SHButtonPrimary>
+			<StackPanel Orientation="Horizontal">
+				<styles:SHButtonPrimary Name="ClearLog" Click="ClearLog_Click">Clear Log</styles:SHButtonPrimary>
+				<styles:SHToggleCheckbox Name="ChkShowLog" IsChecked="{Binding ShowLog}" Checked="ChkShowLog_Toggled" Unchecked="ChkShowLog_Toggled">
+					Show Logs
+				</styles:SHToggleCheckbox>
+			</StackPanel>
 			<TextBlock x:Name="Log" Background="Gray">
 			</TextBlock>
 		</StackPanel>

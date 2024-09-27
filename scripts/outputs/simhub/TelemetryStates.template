@@ -1,0 +1,7 @@
+namespace JZCoding.Simhub.GearPlugin {
+  internal class TelemetryStates {
+  {{#each rows}}
+    public {{typeCs}} {{simhubName}} { set;get; }
+  {{/each}}
+  }
+}

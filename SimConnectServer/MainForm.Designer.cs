@@ -30,6 +30,7 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.Log = new System.Windows.Forms.TextBox();
 			this.BtnClearLog = new System.Windows.Forms.Button();
+			this.ChkShowLog = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// TimerConnection
@@ -40,9 +41,9 @@
 			// 
 			// BtnSignalTest
 			// 
-			this.BtnSignalTest.Location = new System.Drawing.Point(12, 394);
+			this.BtnSignalTest.Location = new System.Drawing.Point(149, 16);
 			this.BtnSignalTest.Name = "BtnSignalTest";
-			this.BtnSignalTest.Size = new System.Drawing.Size(96, 42);
+			this.BtnSignalTest.Size = new System.Drawing.Size(67, 20);
 			this.BtnSignalTest.TabIndex = 0;
 			this.BtnSignalTest.Text = "Signal Test";
 			this.BtnSignalTest.UseVisualStyleBackColor = true;
@@ -67,16 +68,18 @@
 			// 
 			// Log
 			// 
-			this.Log.Location = new System.Drawing.Point(12, 40);
+			this.Log.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.Log.Location = new System.Drawing.Point(0, 44);
 			this.Log.Multiline = true;
 			this.Log.Name = "Log";
 			this.Log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.Log.Size = new System.Drawing.Size(485, 348);
+			this.Log.Size = new System.Drawing.Size(502, 458);
 			this.Log.TabIndex = 3;
 			// 
 			// BtnClearLog
 			// 
-			this.BtnClearLog.Location = new System.Drawing.Point(422, 15);
+			this.BtnClearLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.BtnClearLog.Location = new System.Drawing.Point(415, 15);
 			this.BtnClearLog.Name = "BtnClearLog";
 			this.BtnClearLog.Size = new System.Drawing.Size(75, 23);
 			this.BtnClearLog.TabIndex = 4;
@@ -84,11 +87,23 @@
 			this.BtnClearLog.UseVisualStyleBackColor = true;
 			this.BtnClearLog.Click += new System.EventHandler(this.BtnClearLog_Click);
 			// 
+			// ChkShowLog
+			// 
+			this.ChkShowLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.ChkShowLog.AutoSize = true;
+			this.ChkShowLog.Location = new System.Drawing.Point(339, 19);
+			this.ChkShowLog.Name = "ChkShowLog";
+			this.ChkShowLog.Size = new System.Drawing.Size(70, 16);
+			this.ChkShowLog.TabIndex = 5;
+			this.ChkShowLog.Text = "Read Log";
+			this.ChkShowLog.UseVisualStyleBackColor = true;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(509, 448);
+			this.ClientSize = new System.Drawing.Size(502, 502);
+			this.Controls.Add(this.ChkShowLog);
 			this.Controls.Add(this.BtnClearLog);
 			this.Controls.Add(this.Log);
 			this.Controls.Add(this.label1);
@@ -111,6 +126,7 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.TextBox Log;
 		private System.Windows.Forms.Button BtnClearLog;
+		private System.Windows.Forms.CheckBox ChkShowLog;
 	}
 }
 

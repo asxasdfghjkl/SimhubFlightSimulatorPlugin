@@ -1,8 +1,8 @@
 ﻿using MahApps.Metro.Controls;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SimHub.Plugins;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -10,13 +10,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using WoteverCommon;
 using WoteverCommon.Extensions;
 
 namespace JZCoding.Simhub.GearPlugin {
 	[PluginDescription("Flight Simulator Plugin")]
 	[PluginAuthor("Jamie")]
-	[PluginName("M$FS Plugin")]
+	[PluginName("MSFS Plugin")]
 	public class FlightPlugin : IPlugin, IWPFSettingsV2 {
 		public PluginSettings Settings;
 
@@ -33,7 +32,7 @@ namespace JZCoding.Simhub.GearPlugin {
 		/// <summary>
 		/// Gets a short plugin title to show in left menu. Return null if you want to use the title as defined in PluginName attribute.
 		/// </summary>
-		public string LeftMenuTitle => "M$FS Plugin";
+		public string LeftMenuTitle => "Flight Plugin";
 		private UI UI { set; get; }
 		private Task UdpTask;
 		public FlightPlugin() {
@@ -72,8 +71,14 @@ namespace JZCoding.Simhub.GearPlugin {
 
 			this.Telemetry = new TelemetryStates();
 			var props = typeof(TelemetryStates).GetProperties();
+
+			this.AttachDelegate("IS_MSFS_PLUGIN_INSTALLED", () => 1);
+
 			foreach(var prop in props) {
-				this.AttachDelegate("FlightData." + prop.Name, () => prop.GetValue(this.Telemetry));
+				var nameAttr = prop.GetCustomAttribute<DisplayNameAttribute>(false);
+
+				var propName = nameAttr?.DisplayName ?? "FlightData." + prop.Name;
+				this.AttachDelegate(propName, () => prop.GetValue(this.Telemetry));
 			}
 
 			if(UdpTask == null) {
@@ -116,6 +121,8 @@ namespace JZCoding.Simhub.GearPlugin {
 		}
 
 		private void AddLog(string message) {
+			if(!this.Settings.ShowLog)
+				return;
 			if(!this.UI.Dispatcher.CheckAccess()) {
 				this.UI.Invoke(new Action(() => { AddLog(message); }));
 			} else {
