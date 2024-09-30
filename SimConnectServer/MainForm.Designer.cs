@@ -75,6 +75,7 @@
 			this.Log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.Log.Size = new System.Drawing.Size(502, 458);
 			this.Log.TabIndex = 3;
+			this.Log.Text = "Waiting to connect to MSFS...";
 			// 
 			// BtnClearLog
 			// 
@@ -110,7 +111,7 @@
 			this.Controls.Add(this.TextPort);
 			this.Controls.Add(this.BtnSignalTest);
 			this.Name = "MainForm";
-			this.Text = "Form1";
+			this.Text = "SimConnectServer";
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.ResumeLayout(false);

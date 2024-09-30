@@ -3,9 +3,11 @@ using Newtonsoft.Json;
 using SimConnectServer.Attributes;
 using SimConnectServer.TelemetryData;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +17,8 @@ namespace SimConnectServer {
 	public partial class MainForm : Form {
 		public MainForm() {
 			InitializeComponent();
+
+		
 		}
 		private readonly UdpClient Udp = new UdpClient();
 		private SimConnect Sim;

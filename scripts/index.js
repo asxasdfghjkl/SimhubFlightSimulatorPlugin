@@ -35,8 +35,9 @@ const files = [
         const templateFile = readFileSync(file.template, { encoding: 'utf-8' });
         const template = Handlebars.compile(templateFile, { noEscape: true });
 
-        const groups = file.getGroups?.({ rows }) || ['']
+        const groups = file.getGroups?.({ rows }) || ['1'];
         for (const group of groups) {
+            if (!group) continue;
             const outputRows = file.getRows?.({ group, rows }) || rows;
             const result = template({ group, rows: outputRows });
             writeFileSync(file.output({ group }), result);

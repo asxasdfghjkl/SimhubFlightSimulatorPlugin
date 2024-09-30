@@ -1,30 +1,36 @@
 namespace JZCoding.Simhub.GearPlugin {
   internal class TelemetryStates {
-    public int CONTACT_ON_GROUND { set;get; }
     public double PLANE_LATITUDE { set;get; }
     public double PLANE_LONGITUDE { set;get; }
     public double PLANE_ALTITUDE { set;get; }
-    public int PLANE_ALT_ABOVE_GROUND { set;get; }
+    public double PLANE_ALT_ABOVE_GROUND { set;get; }
     public double ACCELERATION_BODY_X { set;get; }
     public double ACCELERATION_BODY_Y { set;get; }
     public double ACCELERATION_BODY_Z { set;get; }
-    public int GROUND_VELOCITY { set;get; }
-    public int AIRSPEED_BARBER_POLE { set;get; }
-    public int AIRSPEED_INDICATED { set;get; }
+    public double GROUND_VELOCITY { set;get; }
+    public double AIRSPEED_EQUIVALENT { set;get; }
+    public double AIRSPEED_INDICATED { set;get; }
+    public double VERTICAL_SPEED { set;get; }
     public string ATC_MODEL { set;get; }
     public int IS_MSFS_PLUGIN_INSTALLED { set;get; }
     public int IS_MSFS_RUNNING { set;get; }
-    public int ENGING1_RPM_MAX { set;get; }
-    public int ENGING1_RPM_N1 { set;get; }
-    public int ENGING1_RPM_N2 { set;get; }
-    public int ENGING2_RPM_MAX { set;get; }
-    public int ENGING2_RPM_N1 { set;get; }
-    public int ENGING2_RPM_N2 { set;get; }
-    public int ENGING3_RPM_MAX { set;get; }
-    public int ENGING3_RPM_N1 { set;get; }
-    public int ENGING3_RPM_N2 { set;get; }
-    public int ENGING4_RPM_MAX { set;get; }
-    public int ENGING4_RPM_N1 { set;get; }
-    public int ENGING4_RPM_N2 { set;get; }
+    public double MAX_RATED_ENGINE_RPM_1 { set;get; }
+    public double GENERAL_ENG_PCT_MAX_RPM_1 { set;get; }
+    public double GENERAL_ENG_RPM_1 { set;get; }
+    public double MAX_RATED_ENGINE_RPM_2 { set;get; }
+    public double GENERAL_ENG_PCT_MAX_RPM_2 { set;get; }
+    public double GENERAL_ENG_RPM_2 { set;get; }
+    public double MAX_RATED_ENGINE_RPM_3 { set;get; }
+    public double GENERAL_ENG_PCT_MAX_RPM_3 { set;get; }
+    public double GENERAL_ENG_RPM_4 { set;get; }
+    public double MAX_RATED_ENGINE_RPM_4 { set;get; }
+    public double GENERAL_ENG_PCT_MAX_RPM_4 { set;get; }
+    public double GENERAL_ENG_RPM_3 { set;get; }
+    public int GEAR_IS_ON_GROUND_1 { set;get; }
+    public int GEAR_IS_ON_GROUND_2 { set;get; }
+    public int CONTACT_ON_GROUND_1 { set;get; }
+    public int CONTACT_ON_GROUND_2 { set;get; }
+    public int CONTACT_ON_GROUND_3 { set;get; }
+    public int CONTACT_ON_GROUND_4 { set;get; }
   }
 }
