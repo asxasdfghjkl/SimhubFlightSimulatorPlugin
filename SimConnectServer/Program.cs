@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows.Forms;
 
 namespace SimConnectServer {
@@ -11,6 +9,18 @@ namespace SimConnectServer {
 		/// </summary>
 		[STAThread]
 		static void Main() {
+			var files = new string[] { "SimConnect.dll", "managed\\Microsoft.FlightSimulator.SimConnect.dll" };
+			foreach(var file in files) {
+				var fileName = Path.GetFileName(file);
+				if(!File.Exists(fileName)) {
+					var sdkPath = Environment.GetEnvironmentVariable("MSFS_SDK");
+					var dllPath = Path.Combine(sdkPath, file);
+					if(File.Exists(dllPath)) {
+						File.Copy(dllPath, fileName, false);
+					}
+				}
+			}
+
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			Application.Run(new MainForm());
