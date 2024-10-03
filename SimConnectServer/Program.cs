@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
@@ -11,7 +12,17 @@ namespace SimConnectServer {
 		/// </summary>
 		[STAThread]
 		static void Main(string[] args) {
-			CheckSdkDll();
+			switch(CheckSdkDll()) {
+
+				case CheckDllResult.Restart:
+					Process.Start(new ProcessStartInfo() {
+						Arguments = string.Join(" ", args),
+						FileName = Application.ExecutablePath
+					});
+					return;
+				case CheckDllResult.Kill:
+					return;
+			}
 			ParseArguments(args);
 
 			Application.EnableVisualStyles();
@@ -19,18 +30,36 @@ namespace SimConnectServer {
 			Application.Run(new MainForm());
 		}
 
-		private static void CheckSdkDll() {
+
+		private enum CheckDllResult {
+			Start,
+			Kill,
+			Restart
+		}
+
+		private static CheckDllResult CheckSdkDll() {
+			var restart = false;
 			var files = new string[] { "SimConnect.dll", "managed\\Microsoft.FlightSimulator.SimConnect.dll" };
 			foreach(var file in files) {
 				var fileName = Path.GetFileName(file);
 				if(!File.Exists(fileName)) {
+					restart = true;
 					var sdkPath = Environment.GetEnvironmentVariable("MSFS_SDK");
-					var dllPath = Path.Combine(sdkPath, file);
+					if(string.IsNullOrWhiteSpace(sdkPath)) {
+						MessageBox.Show("MSFS SDK is missing in the directory and also is not detected in the system. Please install MSFS SDK.");
+						return CheckDllResult.Kill;
+					}
+					var dllPath = Path.Combine(sdkPath, "SimConnect SDK\\lib", file);
 					if(File.Exists(dllPath)) {
 						File.Copy(dllPath, fileName, false);
+					} else {
+						MessageBox.Show("MSFS SDK is detected but the required files do not exist.");
+						return CheckDllResult.Kill;
 					}
 				}
 			}
+
+			return restart ? CheckDllResult.Restart : CheckDllResult.Start;
 		}
 
 		private static void ParseArguments(string[] args) {
