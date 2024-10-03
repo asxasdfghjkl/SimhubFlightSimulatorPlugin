@@ -28,5 +28,13 @@ namespace SimConnectServer.TelemetryData {
 		public double AIRSPEED_INDICATED;
 		[VariableInfo("VERTICAL SPEED", "feet per minute", SIMCONNECT_DATATYPE.FLOAT64)]
 		public double VERTICAL_SPEED;
+		[VariableInfo("RUDDER DEFLECTION", "radians", SIMCONNECT_DATATYPE.FLOAT64)]
+		public double RUDDER_DEFLECTION;
+		[VariableInfo("RELATIVE WIND VELOCITY BODY X", "knots", SIMCONNECT_DATATYPE.FLOAT64)]
+		public double RELATIVE_WIND_VELOCITY_BODY_X;
+		[VariableInfo("RELATIVE WIND VELOCITY BODY Y", "knots", SIMCONNECT_DATATYPE.FLOAT64)]
+		public double RELATIVE_WIND_VELOCITY_BODY_Y;
+		[VariableInfo("RELATIVE WIND VELOCITY BODY Z", "knots", SIMCONNECT_DATATYPE.FLOAT64)]
+		public double RELATIVE_WIND_VELOCITY_BODY_Z;
 	}
 }

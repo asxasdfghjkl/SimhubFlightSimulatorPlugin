@@ -34,7 +34,10 @@ namespace JZCoding.Simhub.GearPlugin {
 		/// </summary>
 		public string LeftMenuTitle => "Flight Plugin";
 		private UI UI { set; get; }
-		private Task UdpTask;
+		private Task UdpListenerTask;
+		public DateTime LastUpdateTime { private set; get; } = DateTime.MinValue;
+		public DateTime ShowLogUntil { set; get; }
+
 		public FlightPlugin() {
 			UI = new UI(this);
 		}
@@ -49,6 +52,7 @@ namespace JZCoding.Simhub.GearPlugin {
 		public void End(PluginManager pluginManager) {
 			// Save settings
 			this.SaveCommonSettings(pluginManager.GameName, Settings);
+			this.UI.ServerProcess.Kill();
 		}
 
 		/// <summary>
@@ -73,6 +77,10 @@ namespace JZCoding.Simhub.GearPlugin {
 			var props = typeof(TelemetryStates).GetProperties();
 
 			this.AttachDelegate("IS_MSFS_PLUGIN_INSTALLED", () => 1);
+			this.AttachDelegate("IS_MSFS_DATA_UPDATING", () => {
+				var result = (DateTime.Now - LastUpdateTime).TotalSeconds <= 5;
+				return result;
+			});
 
 			foreach(var prop in props) {
 				var nameAttr = prop.GetCustomAttribute<DisplayNameAttribute>(false);
@@ -81,13 +89,14 @@ namespace JZCoding.Simhub.GearPlugin {
 				this.AttachDelegate(propName, () => prop.GetValue(this.Telemetry));
 			}
 
-			if(UdpTask == null) {
-				StartUdpServer();
+			if(UdpListenerTask == null) {
+				StartUdpListener();
 			}
 		}
 
 
-		private void StartUdpServer() {
+
+		private void StartUdpListener() {
 			try {
 
 				var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -95,11 +104,12 @@ namespace JZCoding.Simhub.GearPlugin {
 
 				var stateProps = typeof(TelemetryStates).GetProperties();
 
-				UdpTask = Task.Run(() => {
+				UdpListenerTask = Task.Run(() => {
 					while(true) {
 						var buffer = new byte[1024 * 1024];
 						socket.Receive(buffer, SocketFlags.None);
 						var content = Encoding.UTF8.GetString(buffer);
+
 
 						AddLog(content);
 						if(!content.StartsWith("{")) {
@@ -110,7 +120,10 @@ namespace JZCoding.Simhub.GearPlugin {
 						foreach(var jToken in obj.Children()) {
 							if(jToken is JProperty jProp) {
 								var prop = stateProps.FirstOrDefault(p => p.Name == jProp.Name);
-								prop?.SetValue(this.Telemetry, Convert.ChangeType(jProp.Value, prop.PropertyType));
+								if(prop != null) {
+									prop.SetValue(this.Telemetry, Convert.ChangeType(jProp.Value, prop.PropertyType));
+									LastUpdateTime = DateTime.Now;
+								}
 							}
 						}
 					}
@@ -121,12 +134,12 @@ namespace JZCoding.Simhub.GearPlugin {
 		}
 
 		private void AddLog(string message) {
-			if(!this.Settings.ShowLog)
-				return;
-			if(!this.UI.Dispatcher.CheckAccess()) {
-				this.UI.Invoke(new Action(() => { AddLog(message); }));
-			} else {
-				this.UI.Log.Text += (this.UI.Log.Text == "" ? "" : "\n") + message.Replace("\0", "").Trim();
+			if(this.ShowLogUntil >= DateTime.Now || !message.StartsWith("{")) {
+				if(!this.UI.Dispatcher.CheckAccess()) {
+					this.UI.Invoke(new Action(() => { AddLog(message); }));
+				} else {
+					this.UI.Log.Text += (this.UI.Log.Text == "" ? "" : "\n") + message.Replace("\0", "").Trim();
+				}
 			}
 		}
 	}

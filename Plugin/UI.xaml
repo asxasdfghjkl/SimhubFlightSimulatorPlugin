@@ -13,14 +13,29 @@
 			 >
 	<Grid>
 		<StackPanel>
-			<StackPanel Orientation="Horizontal">
-				<styles:SHButtonPrimary Name="ClearLog" Click="ClearLog_Click">Clear Log</styles:SHButtonPrimary>
-				<styles:SHToggleCheckbox Name="ChkShowLog" IsChecked="{Binding ShowLog}" Checked="ChkShowLog_Toggled" Unchecked="ChkShowLog_Toggled">
-					Show Logs
-				</styles:SHToggleCheckbox>
-			</StackPanel>
-			<TextBlock x:Name="Log" Background="Gray">
-			</TextBlock>
+			<styles:SHSubSection Title="Server">
+				<StackPanel>
+					<StackPanel Orientation="Horizontal">
+						<Label Height="26
+							   ">Port</Label>
+						<TextBox Width="100" IsReadOnly="True" Text="56789" TextAlignment="Right" Height="16"/>
+						<styles:SHButtonPrimary Name="BtnStartServer" Click="BtnStartServer_Click" >Start Telemetry Server</styles:SHButtonPrimary>
+						<styles:SHButtonSecondary x:Name="BtnStopServer" Content="Stop Telemetry Server" Click="BtnStopServer_Click" Visibility="Hidden"/>
+					</StackPanel>
+				</StackPanel>
+			</styles:SHSubSection>
+			<styles:SHSubSection Title="Log">
+				<StackPanel>
+					<StackPanel Orientation="Horizontal">
+						<styles:SHButtonPrimary Name="ClearLog" Click="ClearLog_Click">Clear Log</styles:SHButtonPrimary>
+						<styles:SHToggleCheckbox Name="ChkShowLog" Checked="ChkShowLog_Toggled" Unchecked="ChkShowLog_Toggled">
+							Show Updates
+						</styles:SHToggleCheckbox>
+					</StackPanel>
+					<TextBlock x:Name="Log" Background="Gray">
+					</TextBlock>
+				</StackPanel>
+			</styles:SHSubSection>
 		</StackPanel>
 	</Grid>
 </UserControl>

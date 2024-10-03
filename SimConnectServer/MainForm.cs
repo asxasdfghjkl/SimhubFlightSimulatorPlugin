@@ -1,13 +1,10 @@
 ﻿using Microsoft.FlightSimulator.SimConnect;
 using Newtonsoft.Json;
 using SimConnectServer.Attributes;
-using SimConnectServer.TelemetryData;
 using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,14 +14,14 @@ namespace SimConnectServer {
 	public partial class MainForm : Form {
 		public MainForm() {
 			InitializeComponent();
-
-		
 		}
 		private readonly UdpClient Udp = new UdpClient();
+		private DateTime ShowLogUntil = DateTime.MinValue;
 		private SimConnect Sim;
 		private const int WM_USER_SIMCONNECT = 0x0402;
 
 		private void MainForm_Load(object sender, EventArgs e) {
+			this.TextPort.Text = string.Join(",", Arguments.Ports);
 		}
 
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
@@ -50,6 +47,7 @@ namespace SimConnectServer {
 			if(Sim == null) {
 				StartSimconnect();
 			}
+			ChkShowLog.Checked = ShowLogUntil >= DateTime.Now;
 		}
 
 		private void StartSimconnect() {
@@ -90,16 +88,15 @@ namespace SimConnectServer {
 
 
 		private Task SendUdp(string message) {
-			if(ChkShowLog.Checked) {
+			if(ShowLogUntil >= DateTime.Now || !message.StartsWith("{")) {
 				this.Log.Text += message + Environment.NewLine;
 				this.Log.SelectionStart = this.Log.Text.Length;
 				this.Log.ScrollToCaret();
 			}
 			var bytes = Encoding.UTF8.GetBytes(message);
-			var tasks = TextPort.Text.Split(',')
-				.Select(port => int.TryParse(port, out var value) ? value : 0)
-				.Where(port => port > 0)
-				.Select(port => Udp.SendAsync(bytes, bytes.Length, new IPEndPoint(IPAddress.Parse("127.0.0.1"), port)));
+			var tasks = Arguments.Ports.Select(port =>
+				Udp.SendAsync(bytes, bytes.Length, new IPEndPoint(IPAddress.Parse("127.0.0.1"), port))
+			);
 			return Task.WhenAll(tasks);
 		}
 
@@ -109,6 +106,35 @@ namespace SimConnectServer {
 
 		private void BtnClearLog_Click(object sender, EventArgs e) {
 			this.Log.Text = "";
+		}
+
+		private void ChkShowLog_CheckedChanged(object sender, EventArgs e) {
+			ShowLogUntil = ChkShowLog.Checked ? DateTime.Now.AddSeconds(10) : DateTime.MinValue;
+		}
+
+		private void MainForm_Shown(object sender, EventArgs e) {
+			if(!Arguments.ShowWindow) {
+				this.Hide();
+			}
+		}
+
+		private void SysTrayIcon_MouseDoubleClick(object sender, MouseEventArgs e) {
+			this.Show();
+		}
+
+		private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
+			if(!Arguments.ShowWindow && e.CloseReason == CloseReason.UserClosing) {
+				e.Cancel = true;
+				this.Hide();
+			}
+		}
+
+		private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
+			Application.Exit();
+		}
+
+		private void showWindowToolStripMenuItem_Click(object sender, EventArgs e) {
+			this.Show();
 		}
 	}
 }

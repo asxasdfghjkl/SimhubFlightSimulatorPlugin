@@ -24,6 +24,7 @@
 		/// </summary>
 		private void InitializeComponent() {
 			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.TimerConnection = new System.Windows.Forms.Timer(this.components);
 			this.BtnSignalTest = new System.Windows.Forms.Button();
 			this.TextPort = new System.Windows.Forms.TextBox();
@@ -31,6 +32,12 @@
 			this.Log = new System.Windows.Forms.TextBox();
 			this.BtnClearLog = new System.Windows.Forms.Button();
 			this.ChkShowLog = new System.Windows.Forms.CheckBox();
+			this.SysTrayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+			this.SysTrayMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.showWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.SysTrayMenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// TimerConnection
@@ -53,6 +60,7 @@
 			// 
 			this.TextPort.Location = new System.Drawing.Point(43, 12);
 			this.TextPort.Name = "TextPort";
+			this.TextPort.ReadOnly = true;
 			this.TextPort.Size = new System.Drawing.Size(100, 22);
 			this.TextPort.TabIndex = 1;
 			this.TextPort.Text = "56789";
@@ -75,7 +83,6 @@
 			this.Log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 			this.Log.Size = new System.Drawing.Size(502, 458);
 			this.Log.TabIndex = 3;
-			this.Log.Text = "Waiting to connect to MSFS...";
 			// 
 			// BtnClearLog
 			// 
@@ -92,12 +99,51 @@
 			// 
 			this.ChkShowLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.ChkShowLog.AutoSize = true;
-			this.ChkShowLog.Location = new System.Drawing.Point(339, 19);
+			this.ChkShowLog.Location = new System.Drawing.Point(323, 19);
 			this.ChkShowLog.Name = "ChkShowLog";
-			this.ChkShowLog.Size = new System.Drawing.Size(70, 16);
+			this.ChkShowLog.Size = new System.Drawing.Size(86, 16);
 			this.ChkShowLog.TabIndex = 5;
-			this.ChkShowLog.Text = "Read Log";
+			this.ChkShowLog.Text = "Show Update";
 			this.ChkShowLog.UseVisualStyleBackColor = true;
+			this.ChkShowLog.CheckedChanged += new System.EventHandler(this.ChkShowLog_CheckedChanged);
+			// 
+			// SysTrayIcon
+			// 
+			this.SysTrayIcon.BalloonTipText = "SimConnectServer";
+			this.SysTrayIcon.BalloonTipTitle = "SimConnectServer";
+			this.SysTrayIcon.ContextMenuStrip = this.SysTrayMenu;
+			this.SysTrayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("SysTrayIcon.Icon")));
+			this.SysTrayIcon.Text = "SimConnectServer";
+			this.SysTrayIcon.Visible = true;
+			this.SysTrayIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.SysTrayIcon_MouseDoubleClick);
+			// 
+			// SysTrayMenu
+			// 
+			this.SysTrayMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showWindowToolStripMenuItem,
+            this.toolStripMenuItem1,
+            this.exitToolStripMenuItem});
+			this.SysTrayMenu.Name = "SysTrayMenu";
+			this.SysTrayMenu.Size = new System.Drawing.Size(156, 54);
+			// 
+			// showWindowToolStripMenuItem
+			// 
+			this.showWindowToolStripMenuItem.Name = "showWindowToolStripMenuItem";
+			this.showWindowToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+			this.showWindowToolStripMenuItem.Text = "Show Window";
+			this.showWindowToolStripMenuItem.Click += new System.EventHandler(this.showWindowToolStripMenuItem_Click);
+			// 
+			// toolStripMenuItem1
+			// 
+			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+			this.toolStripMenuItem1.Size = new System.Drawing.Size(152, 6);
+			// 
+			// exitToolStripMenuItem
+			// 
+			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+			this.exitToolStripMenuItem.Text = "Exit";
+			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -112,8 +158,11 @@
 			this.Controls.Add(this.BtnSignalTest);
 			this.Name = "MainForm";
 			this.Text = "SimConnectServer";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
 			this.Load += new System.EventHandler(this.MainForm_Load);
+			this.Shown += new System.EventHandler(this.MainForm_Shown);
+			this.SysTrayMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -128,6 +177,11 @@
 		private System.Windows.Forms.TextBox Log;
 		private System.Windows.Forms.Button BtnClearLog;
 		private System.Windows.Forms.CheckBox ChkShowLog;
+		private System.Windows.Forms.NotifyIcon SysTrayIcon;
+		private System.Windows.Forms.ContextMenuStrip SysTrayMenu;
+		private System.Windows.Forms.ToolStripMenuItem showWindowToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
 	}
 }
 

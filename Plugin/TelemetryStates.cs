@@ -12,8 +12,6 @@ namespace JZCoding.Simhub.GearPlugin {
     public double AIRSPEED_INDICATED { set;get; }
     public double VERTICAL_SPEED { set;get; }
     public string ATC_MODEL { set;get; }
-    public int IS_MSFS_PLUGIN_INSTALLED { set;get; }
-    public int IS_MSFS_RUNNING { set;get; }
     public double MAX_RATED_ENGINE_RPM_1 { set;get; }
     public double GENERAL_ENG_PCT_MAX_RPM_1 { set;get; }
     public double GENERAL_ENG_RPM_1 { set;get; }
@@ -32,5 +30,9 @@ namespace JZCoding.Simhub.GearPlugin {
     public int CONTACT_ON_GROUND_2 { set;get; }
     public int CONTACT_ON_GROUND_3 { set;get; }
     public int CONTACT_ON_GROUND_4 { set;get; }
+    public double RUDDER_DEFLECTION { set;get; }
+    public double RELATIVE_WIND_VELOCITY_BODY_X { set;get; }
+    public double RELATIVE_WIND_VELOCITY_BODY_Y { set;get; }
+    public double RELATIVE_WIND_VELOCITY_BODY_Z { set;get; }
   }
 }

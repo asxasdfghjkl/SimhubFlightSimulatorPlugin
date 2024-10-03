@@ -4,6 +4,5 @@
 	/// </summary>
 	public class PluginSettings {
 		public int UdpPort { set; get; } = 56789;
-		public bool ShowLog { set; get; } = false;
 	}
 }
