@@ -1,4 +1,4 @@
-namespace JZCoding.Simhub.GearPlugin {
+namespace JZCoding.Simhub.FlightPlugin {
   internal class TelemetryStates {
   {{#each rows}}
   {{#if groupName}}

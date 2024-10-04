@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace JZCoding.Simhub.GearPlugin.Properties {
+namespace JZCoding.Simhub.FlightPlugin.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace JZCoding.Simhub.GearPlugin.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("JZCoding.Simhub.GearPlugin.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("JZCoding.Simhub.FlightPlugin.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

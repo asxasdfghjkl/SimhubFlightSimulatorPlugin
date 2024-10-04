@@ -1,4 +1,4 @@
-namespace JZCoding.Simhub.GearPlugin {
+namespace JZCoding.Simhub.FlightPlugin {
   internal class TelemetryStates {
     public double PLANE_LATITUDE { set;get; }
     public double PLANE_LONGITUDE { set;get; }

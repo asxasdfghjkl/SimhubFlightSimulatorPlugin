@@ -1,18 +1,22 @@
-﻿using MahApps.Metro.Controls;
+﻿using log4net.Core;
+using MahApps.Metro.Controls;
 using Newtonsoft.Json.Linq;
 using SimHub.Plugins;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using WoteverCommon.Extensions;
 
-namespace JZCoding.Simhub.GearPlugin {
+namespace JZCoding.Simhub.FlightPlugin {
 	[PluginDescription("Flight Simulator Plugin")]
 	[PluginAuthor("Jamie")]
 	[PluginName("MSFS Plugin")]
@@ -34,12 +38,21 @@ namespace JZCoding.Simhub.GearPlugin {
 		/// </summary>
 		public string LeftMenuTitle => "Flight Plugin";
 		private UI UI { set; get; }
-		private Task UdpListenerTask;
+		private static Thread UdpListeningThread;
+		private static Process SimconnectServerProcess;
 		public DateTime LastUpdateTime { private set; get; } = DateTime.MinValue;
 		public DateTime ShowLogUntil { set; get; }
+		public bool IsSimconnectServerRunning { get => SimconnectServerProcess?.HasExited == false; }
+		public bool IsUdpListening { get => UdpListeningThread?.ThreadState == System.Threading.ThreadState.Running; }
 
 		public FlightPlugin() {
 			UI = new UI(this);
+
+		}
+
+		private void PluginManager_ApplicationExit(object sender, EventArgs e) {
+			UI.ServerProcess?.Kill();
+			this.StopUdpServer();
 		}
 
 		internal TelemetryStates Telemetry { set; get; }
@@ -52,8 +65,9 @@ namespace JZCoding.Simhub.GearPlugin {
 		public void End(PluginManager pluginManager) {
 			// Save settings
 			this.SaveCommonSettings(pluginManager.GameName, Settings);
-			this.UI.ServerProcess.Kill();
 		}
+
+
 
 		/// <summary>
 		/// Returns the settings control, return null if no settings control is required
@@ -72,15 +86,12 @@ namespace JZCoding.Simhub.GearPlugin {
 		public void Init(PluginManager pluginManager) {
 			SimHub.Logging.Current.Debug("Starting plugin");
 			Settings = this.ReadCommonSettings(nameof(FlightPlugin), () => new PluginSettings());
-
+			this.PluginManager.ApplicationExit += this.PluginManager_ApplicationExit;
 			this.Telemetry = new TelemetryStates();
 			var props = typeof(TelemetryStates).GetProperties();
 
-			this.AttachDelegate("IS_MSFS_PLUGIN_INSTALLED", () => 1);
-			this.AttachDelegate("IS_MSFS_DATA_UPDATING", () => {
-				var result = (DateTime.Now - LastUpdateTime).TotalSeconds <= 5;
-				return result;
-			});
+			this.PluginManager.AddProperty("MSFS_PLUGIN_VERSION", typeof(FlightPlugin), Assembly.GetExecutingAssembly().GetName().Version.ToString());
+			this.AttachDelegate("IS_MSFS_DATA_UPDATING", () => (DateTime.Now - LastUpdateTime).TotalSeconds <= 5);
 
 			foreach(var prop in props) {
 				var nameAttr = prop.GetCustomAttribute<DisplayNameAttribute>(false);
@@ -88,48 +99,85 @@ namespace JZCoding.Simhub.GearPlugin {
 				var propName = nameAttr?.DisplayName ?? "FlightData." + prop.Name;
 				this.AttachDelegate(propName, () => prop.GetValue(this.Telemetry));
 			}
-
-			if(UdpListenerTask == null) {
-				StartUdpListener();
-			}
 		}
 
 
 
-		private void StartUdpListener() {
+		internal void StartUdpListener() {
 			try {
-
 				var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 				socket.Bind(new IPEndPoint(IPAddress.Any, Settings.UdpPort));
 
 				var stateProps = typeof(TelemetryStates).GetProperties();
-
-				UdpListenerTask = Task.Run(() => {
+				UdpListeningThread = new Thread(() => {
+					AddLog("UDP Connection started");
 					while(true) {
-						var buffer = new byte[1024 * 1024];
-						socket.Receive(buffer, SocketFlags.None);
-						var content = Encoding.UTF8.GetString(buffer);
-
-
-						AddLog(content);
-						if(!content.StartsWith("{")) {
-							continue;
+						if(UdpListeningThread == null) {
+							break;
 						}
+						try {
+							var buffer = new byte[1024 * 1024];
+							socket.ReceiveTimeout = 500;
+							socket.Receive(buffer, SocketFlags.None);
+							var content = Encoding.UTF8.GetString(buffer);
 
-						var obj = JObject.Parse(content);
-						foreach(var jToken in obj.Children()) {
-							if(jToken is JProperty jProp) {
-								var prop = stateProps.FirstOrDefault(p => p.Name == jProp.Name);
-								if(prop != null) {
-									prop.SetValue(this.Telemetry, Convert.ChangeType(jProp.Value, prop.PropertyType));
-									LastUpdateTime = DateTime.Now;
+
+							AddLog(content);
+							if(!content.StartsWith("{")) {
+								continue;
+							}
+
+							var obj = JObject.Parse(content);
+							foreach(var jToken in obj.Children()) {
+								if(jToken is JProperty jProp) {
+									var prop = stateProps.FirstOrDefault(p => p.Name == jProp.Name);
+									if(prop != null) {
+										prop.SetValue(this.Telemetry, Convert.ChangeType(jProp.Value, prop.PropertyType));
+										LastUpdateTime = DateTime.Now;
+									}
 								}
 							}
+						} catch(SocketException ex) {
+							if(ex.SocketErrorCode != SocketError.TimedOut) {
+								AddLog("UDP Listener Error: " + ex.Message);
+							}
+						} catch(Exception) {
 						}
 					}
 				});
+				UdpListeningThread.Start();
 			} catch(Exception ex) {
-				AddLog($"Can't Listen to UDP Port:{Settings.UdpPort}. {ex.Message}");
+				AddLog($"Failed to start UDP connection. Port: {Settings.UdpPort}. {ex.Message}");
+			}
+		}
+
+		internal void StopUdpServer() {
+			try {
+				if(IsUdpListening) {
+					UdpListeningThread.Abort();
+					UdpListeningThread = null;
+					AddLog($"UDP connection stopped.");
+				}
+			} catch(Exception ex) {
+				AddLog($"Failed to stop UDP connection: {ex.Message}");
+			}
+		}
+
+		internal void StartSimconnectServer() {
+			SimconnectServerProcess = new Process() {
+				StartInfo = new ProcessStartInfo {
+					FileName = "simconnectserver.exe",
+					Arguments = $"--port {Settings.UdpPort} --hide"
+				}
+			};
+			SimconnectServerProcess.Start();
+			AddLog("SimConnect Server Started.");
+		}
+
+		internal void StopSimconnectServer() {
+			if(IsSimconnectServerRunning) {
+				SimconnectServerProcess.Kill();
+				AddLog("SimConnect Server Stopped.");
 			}
 		}
 

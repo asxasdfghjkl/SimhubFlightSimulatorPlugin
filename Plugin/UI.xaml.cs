@@ -5,13 +5,14 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace JZCoding.Simhub.GearPlugin {
+namespace JZCoding.Simhub.FlightPlugin {
 
 	public partial class UI : UserControl {
 		private readonly FlightPlugin Plugin;
-		internal Process ServerProcess { get; private set; }
+		internal static Process ServerProcess { get; private set; }
 		public UI() {
 			InitializeComponent();
 			var timer = new DispatcherTimer() {
@@ -23,9 +24,19 @@ namespace JZCoding.Simhub.GearPlugin {
 
 		private void UpdateUI(object sender, EventArgs e) {
 			this.ChkShowLog.IsChecked = Plugin.ShowLogUntil > DateTime.Now;
-			this.BtnStartServer.Visibility = (ServerProcess != null && ServerProcess.HasExited == false)
-				? Visibility.Collapsed : Visibility.Visible;
-			this.BtnStopServer.Visibility = BtnStartServer.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+			if(Plugin.IsSimconnectServerRunning && Plugin.IsUdpListening) {
+				this.StatusLight.Fill = Brushes.Green;
+				this.BtnStartServer.Visibility = Visibility.Collapsed;
+				this.BtnStopServer.Visibility = Visibility.Visible;
+			} else if(Plugin.IsSimconnectServerRunning || Plugin.IsUdpListening) {
+				this.StatusLight.Fill = Brushes.Yellow;
+				this.BtnStartServer.Visibility = Visibility.Visible;
+				this.BtnStopServer.Visibility = Visibility.Collapsed;
+			} else {
+				this.StatusLight.Fill = Brushes.Red;
+				this.BtnStartServer.Visibility = Visibility.Visible;
+				this.BtnStopServer.Visibility = Visibility.Collapsed;
+			}
 		}
 
 		public UI(FlightPlugin plugin) : this() {
@@ -42,22 +53,16 @@ namespace JZCoding.Simhub.GearPlugin {
 		}
 
 		private void BtnStartServer_Click(object sender, RoutedEventArgs e) {
-			if(ServerProcess != null && !ServerProcess.HasExited) {
-				ServerProcess.Kill();
-			} else {
-				ServerProcess = new Process() {
-					StartInfo = new ProcessStartInfo {
-						FileName = "simconnectserver.exe",
-						Arguments = $"--port {this.Plugin.Settings.UdpPort} --hide"
-					}
-				};
-				ServerProcess.Start();
-			}
+			Plugin.StopSimconnectServer();
+			Plugin.StopUdpServer();
+			Plugin.StartUdpListener();
+			Plugin.StartSimconnectServer();
 			this.UpdateUI(sender, e);
 		}
 
 		private void BtnStopServer_Click(object sender, RoutedEventArgs e) {
-			ServerProcess?.Kill();
+			this.Plugin.StopSimconnectServer();
+			this.Plugin.StopUdpServer();
 			this.UpdateUI(sender, e);
 		}
 	}

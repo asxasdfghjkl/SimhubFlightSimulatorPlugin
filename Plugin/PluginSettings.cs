@@ -1,4 +1,4 @@
-﻿namespace JZCoding.Simhub.GearPlugin {
+﻿namespace JZCoding.Simhub.FlightPlugin {
 	/// <summary>
 	/// Settings class, make sure it can be correctly serialized using JSON.net
 	/// </summary>
